@@ -1,0 +1,10 @@
+.DS_Store
+.idea/
+app/.env
+app/venv
+venv
+data
+*/.pytest_cache/
+__pycache__/
+ *.pyc
+log

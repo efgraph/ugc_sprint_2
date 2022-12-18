@@ -1,0 +1,30 @@
+name: UGC Service
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Create folders for report
+        run: |
+          mkdir -p reports/mypy
+      - name: Install libraries for tests
+        run: |
+          pip install lxml==4.9.0
+          pip install mypy==0.961
+      - name: Run tests. Create mypy html report
+        run: |
+          mypy api_service/src/db/ --ignore-missing-imports --html-report reports/mypy/
