@@ -11,4 +11,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.project_name, settings.kafka_host, settings.kafka_port)

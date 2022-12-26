@@ -15,3 +15,7 @@ class UserComment(BaseData):
 
 class UserFilmLike(BaseData):
     like: bool
+
+
+class Bookmark(BaseData):
+    pass

@@ -1,12 +1,13 @@
 import aiohttp
 import uvicorn as uvicorn
 from aiokafka import AIOKafkaProducer
-from api.v1 import rating_api, user_event_api
+from api.v1 import rating_api, user_event_api, health_check
 from db import mongodb, kafka
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import ORJSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from settings.config import settings
+from http import HTTPStatus
 
 app = FastAPI(
     title=settings.project_name,
@@ -31,20 +32,25 @@ async def shutdown():
 
 app.include_router(rating_api.router, prefix='/api/v1/events/rating', tags=['rating_event'])
 app.include_router(user_event_api.router, prefix='/api/v1/films/user-event', tags=['user_events'])
+app.include_router(health_check.router, prefix='/api/v1/health', tags=['health_check'])
+
 
 
 # Проверяет Auth сервис. Обращается по адресу.
 @app.middleware('http')
 async def add_process_time_header(request: Request, call_next):
+    if "api/openapi" in request.url.path or "health" in request.url.path:
+        response = await call_next(request)
+        return response
     headers = request.headers
     params = request.query_params
     auth_url = 'http://auth:5000/v1/auth/usercheck'
     auth_check = await check_user(auth_url, headers, params)
 
-    if auth_check.status == 200:
+    if auth_check.status == HTTPStatus.OK:
         response = await call_next(request)
         return response
-    return Response(status_code=401)
+    return Response(status_code=HTTPStatus.UNAUTHORIZED)
 
 
 async def check_user(url, headers, params):

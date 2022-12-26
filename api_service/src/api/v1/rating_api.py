@@ -6,7 +6,7 @@ from services.rating_services import RatingEventService, get_rating_event_servic
 router = APIRouter()
 
 
-@router.post('/rating_event')
+@router.post('/rating_event', response_model=dict)
 async def user_film_rating(
         data: UserFilmRating,
         rating_event: RatingEventService = Depends(get_rating_event_service)):
